@@ -1,0 +1,81 @@
+* miniq
+
+  A minimal CSS selector in Go (with no dependencies other than [[https://godoc.org/golang.org/x/net/html][golang.org/x/net/html]])
+
+** Example
+
+   - Listing currently trending repositories on GitHub
+
+     #+begin_src go
+       package main
+
+       import (
+               "fmt"
+
+               "github.com/microamp/miniq"
+       )
+
+       func main() {
+               url := "https://github.com/trending"
+               qs := "ol.repo-list li.d-block div.d-inline-block h3 a"
+
+               fmt.Println("Listing trending repositories from GitHub...")
+
+               ns, err := miniq.QURL(url, qs)
+               if err != nil {
+                       panic(err)
+               }
+
+               rank := 1
+               for n := range ns {
+                       for _, a := range n.Attr {
+                               if a.Key == "href" {
+                                       fmt.Printf("#%02d: https://github.com/%s\n", rank, a.Val)
+                                       continue
+                               }
+                       }
+                       rank++
+               }
+       }
+     #+end_src
+
+     - Sample output
+
+       #+begin_src
+         Listing trending repositories from GitHub...
+         #01: https://github.com//996icu/996.ICU
+         #02: https://github.com//LisaDziuba/Awesome-Design-Tools
+         #03: https://github.com//citybound/citybound
+         #04: https://github.com//xyproto/algernon
+         #05: https://github.com//datawhalechina/pumpkin-book
+         #06: https://github.com//davebs/AgileLite
+         #07: https://github.com//NationalSecurityAgency/ghidra
+         #08: https://github.com//codex-team/editor.js
+         #09: https://github.com//keenanwoodall/Deform
+         #10: https://github.com//MariaLetta/free-gophers-pack
+         #11: https://github.com//cstack/db_tutorial
+         #12: https://github.com//formulahendry/955.WLB
+         #13: https://github.com//shengxinjing/programmer-job-blacklist
+         #14: https://github.com//codercom/code-server
+         #15: https://github.com//Accenture/AmpliGraph
+         #16: https://github.com//pigigaldi/Pock
+         #17: https://github.com//nefe/You-Dont-Need-jQuery
+         #18: https://github.com//kognise/water.css
+         #19: https://github.com//florinpop17/app-ideas
+         #20: https://github.com//jondot/goweight
+         #21: https://github.com//Unknwon/the-way-to-go_ZH_CN
+         #22: https://github.com//doocs/advanced-java
+         #23: https://github.com//Snailclimb/JavaGuide
+         #24: https://github.com//clone95/Virgilio
+         #25: https://github.com//deepmind/mathematics_dataset
+       #+end_src
+
+*** Using Docker
+
+    #+begin_src sh
+      docker build -t miniq . && docker run -it miniq
+    #+end_src
+
+** License
+
+   BSD-3 Clause
