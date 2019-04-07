@@ -49,35 +49,43 @@ func (t *token) getData() string {
 	return t.raw
 }
 
+func (t *token) matchingAttrVal(n *html.Node, key, val string) bool {
+	for _, a := range n.Attr {
+		if a.Key == key {
+			for _, v := range strings.Split(a.Val, " ") {
+				if v == val {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func pred(t *token) predicate {
+	return func(n *html.Node) bool {
+		if n.Type != html.ElementNode {
+			return false
+		}
+		if n.Data != t.getData() {
+			return false
+		}
+		if t.hasClass() && !t.matchingAttrVal(n, "class", t.getClassVal()) {
+			return false
+		}
+		if t.hasID() && !t.matchingAttrVal(n, "id", t.getIDVal()) {
+			return false
+		}
+		return true
+	}
+}
+
 func tokenise(qs string) []*token {
 	var ts []*token
 	for _, s := range strings.Split(qs, " ") {
 		ts = append(ts, &token{raw: s})
 	}
 	return ts
-}
-
-func pred(t *token) predicate {
-	return func(n *html.Node) bool {
-		if n.Type == html.ElementNode && n.Data == t.getData() {
-			if !t.hasClass() && !t.hasID() {
-				return true
-			} else {
-				classVal := t.getClassVal()
-				for _, a := range n.Attr {
-					if a.Key == "class" {
-						for _, val := range strings.Split(a.Val, " ") {
-							if val == classVal {
-								return true
-							}
-						}
-					}
-				}
-				return false
-			}
-		}
-		return false
-	}
 }
 
 func preds(qs string) []predicate {
