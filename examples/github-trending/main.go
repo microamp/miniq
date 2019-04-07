@@ -22,7 +22,7 @@ func main() {
 		for _, a := range n.Attr {
 			if a.Key == "href" {
 				fmt.Printf("#%02d: https://github.com/%s\n", rank, a.Val)
-				continue
+				break
 			}
 		}
 		rank++
