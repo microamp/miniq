@@ -1,8 +1,6 @@
 package miniq
 
 import (
-	"io"
-
 	"golang.org/x/net/html"
 )
 
@@ -32,12 +30,7 @@ func search(in chan *html.Node, p predicate) chan *html.Node {
 	return out
 }
 
-func Q(r io.Reader, qs string) (chan *html.Node, error) {
-	root, err := html.Parse(r)
-	if err != nil {
-		return nil, err
-	}
-
+func Q(root *html.Node, qs string) (chan *html.Node, error) {
 	ps := preds(qs)
 
 	first := make(chan *html.Node)
@@ -62,5 +55,11 @@ func QURL(url, qs string) (chan *html.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return Q(r, qs)
+
+	root, err := html.Parse(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return Q(root, qs)
 }
